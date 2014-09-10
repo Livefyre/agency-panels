@@ -1,0 +1,94 @@
+/**
+ * Example Usage:
+ * @include keyframes(fadeIn) {
+ *      0% {
+ *          opacity: 0;
+ *      }
+ *      100% {
+ *          opacity: 1;
+ *      }
+ * }
+ **/
+@mixin keyframes ($animationName) {
+    @-moz-keyframes $animationName {
+        @content;
+    }
+    @-o-keyframes $animationName {
+        @content;
+    }
+    @-webkit-keyframes $animationName {
+        @content;
+    }
+    @keyframes $animationName {
+        @content;
+    }
+}
+
+/**
+ *  Example usage: 
+ *  @include animation(10s, 5s, fadeIn);
+ **/
+@mixin animation ($duration, $animation, $delay: 0s) {
+    -webkit-animation-delay: $delay;
+    -webkit-animation-duration: $duration;
+    -webkit-animation-name: $animation;
+    -webkit-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+ 
+    -moz-animation-delay: $delay;
+    -moz-animation-duration: $duration;
+    -moz-animation-name: $animation;
+    -moz-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+ 
+    -o-animation-delay: $delay;
+    -o-animation-duration: $duration;
+    -o-animation-name: $animation;
+    -o-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+ 
+    animation-delay: $delay;
+    animation-duration: $duration;
+    animation-name: $animation;
+    animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+}
+
+/**
+ * ANIMATION CLASSES
+ **/
+.fade-in {
+    @include animation (1s, fade-in);
+}
+@include keyframes (fade-in) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.fade-out {
+    @include animation (1s, fade-out);
+}
+@include keyframes (fade-out) {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.grow-right {
+    @include animation (1s, grow-right);
+    -webkit-animation-timing-function: linear;
+    -moz-animation-timing-function: linear;
+    -o-animation-timing-function: linear;
+    animation-timing-function: linear;
+}
+@include keyframes (grow-right) {
+    0% {
+        width: 0%;
+    }
+    100% {
+        width: 100%;
+    }
+}
