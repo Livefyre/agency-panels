@@ -93,7 +93,7 @@ These methods are available to use with a reference to the Panels instance. For 
 
 * `panels.next()`: Go to the next panel. If you're at the beginning, it'll wrap to the last panel.
 * `panels.prev()`: Go to the previous panel. If you're at the end, it'll wrap to the first panel.
-* `panels.goTo(panel #)`: Go to a specified panel, designated by the `panel #` passed into the method. The `panel #` must be a positive, whole number. Additionaly, this uses a 1-based index (as opposed to a 0-based index) and clamps you only valid panels (i.e. you can't go to panel 10 if there are only 9 panels)
+* `panels.goTo(panel #)`: Go to a specified panel, designated by the `panel #` passed into the method. The `panel #` must be a positive, whole number. Additionaly, this uses a 1-based index (as opposed to a 0-based index) and clamps you to only valid panels (i.e. you can't go to panel 10 if there are only 9 panels)
 * `panels.stop`: Stops the panels from advance by canceling the timer.
 * `panels.resume`: Starts the panel advancement again.
 
