@@ -14,7 +14,6 @@ var dest = {
     imgs: './dist/imgs'
 };
 
-
 /**
  * TASK DEFINITIONS
  **/
@@ -35,7 +34,8 @@ gulp.task('imgs-build', function () {
 gulp.task('browser-sync', function () {
     browserSync({
         server: {
-            baseDir: './'
+            baseDir: './',
+            directory: true
         }
     });
 });
@@ -61,6 +61,7 @@ gulp.task('imgs-livereload', function () {
 /**
  * TARGET DEFINITIONS
  **/
+ 
 // Default - livereload and continuous building
 gulp.task('default', ['sass-livereload', 'imgs-livereload', 'browser-sync'], function () {
     gulp.watch(source.sass, ['sass-livereload']);
