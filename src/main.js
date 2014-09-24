@@ -1,6 +1,17 @@
 define(['jquery'], function ($) {
     'use strict';
 
+    /**
+     * Constructor for Agency Panels
+     * @class
+     *
+     * @param {Object} opts Options
+     * @param {DOM element or JQuery DOM element} opts.el Element to be rendered in
+     * @param {Boolean} opts.autoAdvance Whether automatic advancement of panels occurs. Default true.
+     * @param {Number} opts.advanceInterval The time in miliseconds to wait before it advances to the next panel. Default 10000 ms.
+     * @param {String} opts.stylesheetName The name of the stylesheet to look for that contains the default Agency Panels styles. Default 'main.css'
+     * @param {Boolean} opts.visualTimer Whether or not you want the visual timer bar to appear. Only an option if auto advancement is on. Default true.
+     **/
     var AgencyPanels = function (opts) {
         // Private vars
         this._$panels;
@@ -13,17 +24,17 @@ define(['jquery'], function ($) {
         this._timerIntervals = [];
         this._numCycles = 0;
         this._css = new AgencyPanels.css();
-        this._stylesheetName = 'main.css';
 
         // Public vars
         opts = opts || {};
         this.$el = this._setEl(opts.el);
         this.autoAdvance = opts.autoAdvance === false ? false : true;
-        this.advanceInterval = opts.advanceInterval || 10000;
+        this.advanceInterval = praseInt(opts.advanceInterval, 10) || 10000;
         this.refreshCycle = opts.refreshCycle || 0;
-        this.visualTimer = opts.visualTimer === false ? false : true;
+        this.stylesheetName = opts.stylesheetName || 'main.css';
         this.transitionInClass = opts.transitionInClass || this._css.fadeInClass;
         this.transitionOutClass = opts.transitionOutClass || this._css.fadeOutClass;
+        this.visualTimer = opts.visualTimer === false ? false : true;
 
         // And go.
         this._init();
@@ -45,7 +56,9 @@ define(['jquery'], function ($) {
      * perform the necessary operations. Requires an actual DOM
      * element.. otherwise it goes kablooie.
      *
+     * @private
      * @param el HTML DOM Element
+     * @returns {JQuery DOM Object} Element JQuerified
      **/
     AgencyPanels.prototype._setEl = function (el) {
         var $el = el.jquery ? el : $(el);
@@ -70,6 +83,8 @@ define(['jquery'], function ($) {
      * Internal function that actually resizes the panels
      * according to the window height, such that the content is
      * auto centered vertically.
+     *
+     * @private
      **/
     AgencyPanels.prototype._autoFit = function () {
         var innerHeight = this._getScreenDimensions().height;
@@ -85,6 +100,9 @@ define(['jquery'], function ($) {
 
     /**
      * A function to get the dimensions of the screen
+     *
+     * @private
+     * @returns {Object} Object of the screen height and width {height: #, width #}
      **/
     AgencyPanels.prototype._getScreenDimensions = function () {
         return {height: window.innerHeight, width: window.innerWidth};
@@ -93,6 +111,8 @@ define(['jquery'], function ($) {
     /**
      * Handler to facilitate the hokey pushes. Debounces it so people
      * can't go crazy on button mashing.
+     *
+     * @param {JQuery Event} evt Typical JQuery event object
      **/
     AgencyPanels.prototype.handleHotkey = function (evt) {
         var fn = function () {
@@ -102,6 +122,12 @@ define(['jquery'], function ($) {
         this._debounce(fn.bind(this), 300);
     }
 
+    /**
+     * Event handler for key presses/hotkeys
+     *
+     * @private
+     * @param {JQuery Event} evt Typical JQuery event object
+     **/
     AgencyPanels.prototype._hotkeyHandler = function (evt) {
         // Right Arrow
         if (evt.which == 39) {
@@ -126,6 +152,8 @@ define(['jquery'], function ($) {
 
     /**
      * Initializes stuff
+     *
+     * @private
      **/
     AgencyPanels.prototype._init = function () {
         /*
@@ -182,6 +210,8 @@ define(['jquery'], function ($) {
      * Public method that will display the next panel in the cycle. In
      * the event we're at the end of the panels list, it'll wrap and
      * make us go to the beginning.
+     *
+     * returns {AgencyPanels} 'this' object for chaining
      */
     AgencyPanels.prototype.next = function () {
         var idx = this._currentPanelIdx;
@@ -192,6 +222,8 @@ define(['jquery'], function ($) {
      * Public method that will display the previous panel in the cycle. In
      * the event we're at the beginning of the panels list, it'll wrap and
      * make us go to the end of the list.
+     *
+     * returns {AgencyPanels} 'this' object for chaining
      */
     AgencyPanels.prototype.prev = function () {
         var idx = this._currentPanelIdx;
@@ -201,8 +233,13 @@ define(['jquery'], function ($) {
     /**
      * Public method that sanitizes the input and which panel
      * we want to display.
+     *
+     * @param {Integer} panelIndex Panel index number to go to. 1-based.
+     * @returns {AgencyPanels} 'this' object for chaining
      **/
     AgencyPanels.prototype.goTo = function (panelIndex) {
+        panelIndex = parseInt(panelIndex, 10);
+
         // Clamp the values to a 1-N range so we don't get an out
         // of bounds error.
         var numPanels = this._$panels.length;
@@ -221,7 +258,9 @@ define(['jquery'], function ($) {
      * bookkeeping and then leave the rest of the animation effects up to the animation
      * event handlers.
      *
+     * @private
      * @param panelIndex Integer The panel index you want to go to (so future, not current)
+     * @returns {AgencyPanels} 'this' object for chaining
      */
     AgencyPanels.prototype._goTo = function (panelIndex) {
         panelIndex = parseInt(panelIndex, 10);
@@ -252,6 +291,7 @@ define(['jquery'], function ($) {
      * of updating the visual elements and transitions of panels and the timer.
      * Additionally, it sets up the next iteration for the panel rotation.
      *
+     * @private
      * @param evt Event Object The normal data passed to event handlers
      **/
     AgencyPanels.prototype._animationEndHandler = function (evt) {
@@ -285,7 +325,10 @@ define(['jquery'], function ($) {
      * This method is called when an animation event BEGINS and at the very least
      * transmits when the transition begins.
      *
+     * @private
      * @param evt Event Object The normal data passed to event handlers
+     * @fires 'transitionEnter.panels' Event for when the enter transition starts for a panel
+     * @fires 'transitionExit.panels' Event for when the exit transition starts for a panel
      **/
     AgencyPanels.prototype._animationStartHandler = function (evt) {
         var animationName = evt.originalEvent.animationName;
@@ -307,6 +350,11 @@ define(['jquery'], function ($) {
 
     /**
      *  Method to start the panel advancement
+     *
+     * @private
+     * @param {Boolean} withoutTransition Whether or not this is being called with or
+     * without a transition (i.e. first load or resuming)
+     * @returns {AgencyPanels} 'this' object for chaining
      **/
     AgencyPanels.prototype._start = function (withoutTransition) {
         // In case resume is called in succession, we'll
@@ -326,6 +374,8 @@ define(['jquery'], function ($) {
 
     /**
      * Resume the panel advancement
+     *
+     * @returns {AgencyPanels} 'this' object for chaining
      **/
     AgencyPanels.prototype.resume = function () {
         return this._start(true);
@@ -333,6 +383,8 @@ define(['jquery'], function ($) {
 
     /**
      *  Method to stop the panel advancement
+     *
+     * @returns {AgencyPanels} 'this' object for chaining
      **/
     AgencyPanels.prototype.stop = function () {
         if (this._advanceTimerId) {
@@ -350,6 +402,11 @@ define(['jquery'], function ($) {
     /**
      * Debounces events so that we don't get crazy amounts
      * of function calls... for example, on the resize event
+     * 
+     * @private
+     * @param {Function} func Function you want to execute at the end of the day
+     * @param {Number} delay How long you want to wait for before you actually execute it, in miliseconds.
+     * Default is 200 miliseconds.
      **/
     AgencyPanels.prototype._debounce = function (func, delay) {
         delay = delay || 200;
@@ -372,6 +429,10 @@ define(['jquery'], function ($) {
      * exist, it'll comply and reload - right conditions being if the number
      * of cycles it's completed is equal to the number of cycles someone's
      * set to reload on.
+     *
+     * @private
+     * @private {Jquery Event} evt Typical event object
+     * @private {String} panelIndex The index of the panel that we're on.
      **/
     AgencyPanels.prototype._reloadMaybe = function (evt, panelIndex) {
         if (this._numCycles == this.refreshCycle && !panelIndex) {
@@ -389,6 +450,10 @@ define(['jquery'], function ($) {
      * Helper function that sets the state of a CSS animation. It'll try
      * the default animation state.. but if that's not there, it'll try
      * the other method names.
+     *
+     * @private
+     * @param {JQuery Object} $el Element to set the animation state for
+     * @param {String} state Animation state you want to set it to
      **/
     AgencyPanels.prototype._setAnimationState = function ($el, state) {
         if (!$el.css('animationPlayState', state)) {
@@ -401,6 +466,8 @@ define(['jquery'], function ($) {
     /**
      * Builds the timer bar on the bottom and it inserts it as a peer of the
      * panel-container element.
+     *
+     * @private
      **/
     AgencyPanels.prototype._buildVisualTimer = function () {
         this._$visualTimerEl = $('<div class="' + this.visualTimerWrapperClass + '"></div>')
@@ -414,6 +481,7 @@ define(['jquery'], function ($) {
     /**
      * Start the visual timer's animation.
      *
+     * @private
      * @param withoutTransition Boolean a flag that tells the timer to take into account
      *        intro transition animation
      **/
@@ -427,6 +495,8 @@ define(['jquery'], function ($) {
 
     /**
      * Stop the timer animation.
+     *
+     * @private
      **/
     AgencyPanels.prototype._stopVisualTimer = function () {
         var $visualTimer = this._$visualTimerEl.find('.' + this.visualTimerClass);
@@ -434,8 +504,13 @@ define(['jquery'], function ($) {
     };
 
     /**
-     * Helper method to add the CSS properties.. but with all the vender
+     * Helper method to add the CSS properties.. but with all the vendor
      * prefixes.
+     *
+     * @private
+     * @param {JQuery Object} $el Element to add the css class on
+     * @param {String} prop The CSS property that you want to add
+     * @param {String} val Value of the CSS that should be set
      **/
     AgencyPanels.prototype._addCssWithPrefixes = function ($el, prop, val) {
         var prefixes = ['-webkit-', '-moz-', '-o-']
@@ -449,6 +524,10 @@ define(['jquery'], function ($) {
      * A method to claculate how long the visual timer bar's animation should run. It calculates this
      * value by adding together the duration of the intro and outro animations and subtracting it from
      * the total duration to spend on the panel.
+     *
+     * @private
+     * @param {Boolean} withoutTransition A flag that indicates whether we should calculate times with the transitions.
+     * @param {Number} The calculated duration of how long the panel should be visible.
      **/
     AgencyPanels.prototype._calcAnimationDuration = function (withoutTransition) {
         var transDuration = withoutTransition ? 0 : parseInt(this._getCssVal(this.transitionOutClass, 'animation-duration').replace(/s|ms/g, ''));
@@ -463,14 +542,14 @@ define(['jquery'], function ($) {
      * magically. This is particularly useful for finding values that don't have accessor values.. like
      * animations.
      *
-     * @param cssClass String A CSS class to search for - e.g. fadeIn
-     * @param prop String The property to search for for that css class - e.g. animation-duration
+     * @param {String} cssClass A CSS class to search for - e.g. fadeIn
+     * @param {String} prop The property to search for for that css class - e.g. animation-duration
      **/
     AgencyPanels.prototype._getCssVal = function (cssClass, prop) {
         var css = document.styleSheets;
 
         for (var i = 0, len = css.length; i < len; i++) {
-            if (css[i].href.search(this._stylesheetName) > -1) {
+            if (css[i].href.search(this.stylesheetName) > -1) {
                 var rules = css[i].cssRules || css[i].rules;
 
                 for (var j = 0, rules_len = rules.length; j < rules_len; j++) {
