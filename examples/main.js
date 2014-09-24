@@ -1,12 +1,5 @@
-require([
-    'jquery',
-    'agency-panels'],
-function ($, Panels) {
-    window.panels = new Panels({
-        'el': document.getElementById('panels'),
-        'refreshCycle': 10
-    });
-
+require(['agency-panels'],
+function (Panels) {
     Livefyre.require([
         'streamhub-sdk#2',
         'streamhub-wall#3'],
@@ -21,15 +14,32 @@ function ($, Panels) {
             'collection': col
         });
 
+        window.panels = new Panels({
+            'el': document.getElementById('panels'),
+            'refreshCycle': 10
+        });
+
         panels.$el.on('transitionEnter.panels', function (evt, panelIdx) {
-            if (parseInt(panelIdx) == 0) {
+            panelIdx = parseInt(panelIdx, 10)
+            if (panelIdx == 0) {
+                if (panels.whichCycle() === 0) {
+                    var fn = function () {
+                        panels.getPanel(panelIdx + 1).css('visibility', 'hidden').css('display', 'table');
+                        wall.$el.trigger('resize');
+                    };
+                    setTimeout(fn, 3000);
+                }
+
                 wall.resume();
-                wall.$el.trigger('resize');
+            }
+
+            if (panelIdx == 1) {
+                panels.getPanel(panelIdx).css('visibility', 'visible');
             }
         });
 
         panels.$el.on('transitionExit.panels', function (evt, panelIdx) {
-            if (parseInt(panelIdx) == 0) {
+            if (parseInt(panelIdx) == 1) {
                 wall.pause();
             }
         });

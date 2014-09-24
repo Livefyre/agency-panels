@@ -29,7 +29,7 @@ define(['jquery'], function ($) {
         opts = opts || {};
         this.$el = this._setEl(opts.el);
         this.autoAdvance = opts.autoAdvance === false ? false : true;
-        this.advanceInterval = praseInt(opts.advanceInterval, 10) || 10000;
+        this.advanceInterval = parseInt(opts.advanceInterval, 10) || 10000;
         this.refreshCycle = opts.refreshCycle || 0;
         this.stylesheetName = opts.stylesheetName || 'main.css';
         this.transitionInClass = opts.transitionInClass || this._css.fadeInClass;
@@ -461,7 +461,28 @@ define(['jquery'], function ($) {
         }
     };
 
-    // TODO: Break the visual timer code out into it's on module
+    /**
+     * Returns a reference to the desired panel
+     *
+     * @param {Number} idx Index number of the panel desired. 0-based.
+     * @returns {JQuery Object} JQuery wrapped panel object.
+     **/
+    AgencyPanels.prototype.getPanel = function (idx) {
+        return this._$panels.eq(idx);
+    };
+
+    /**
+     * Determine which cycle you're on
+     *
+     * @returns {Number} Cycle number. 0-based.
+     **/
+    AgencyPanels.prototype.whichCycle = function() {
+        return this._numCycles;
+    };
+
+    /***************
+     * TODO: Break the visual timer code out into it's on module
+     ***************/
 
     /**
      * Builds the timer bar on the bottom and it inserts it as a peer of the

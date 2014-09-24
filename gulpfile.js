@@ -29,7 +29,6 @@ gulp.task('sass-build', function () {
     gulp.src(src.sass)
         .pipe(sass())
         .pipe(minifyCss())
-        .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest(dest.css));
 });
 
