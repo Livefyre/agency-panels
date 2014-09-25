@@ -78,6 +78,7 @@ These are the configuration options you can pass into the constructor that will 
 * `autoAdvance`: Whether or not the panels automatically advance after a set amount of time. Options are `true` or `false`, with the default as `true`.
 * `advanceInterval`: The default timing for how long a panel will be on-screen before it is transitioned out. The values must be in milliseconds and whole, round numbers greater than 2000 (the amount of time required to transition in and out). The default is 10000 milliseconds (10 seconds);
 * `refreshCycle`: How many full cycles must pass before the browser refreshes the experience. A full cycle is considered running through all of the defined panels once, but is technically only ever counted upon after transition out of the last panel. This is a helpful option if you plan on displaying content on large, passive screens for extended periods of time (> 1 hour). To disable it, set it to 0 or exclude the option;
+* `stylesheetName`: Allows for you to specifiy where the css is located. By default it looks for 'main.css', but if you happen to compile everything down and it changes the file name (e.g. main.min.css), then you can specify that stylesheet here.
 * `visualTimer`: Whether or not to display the visual timer bar along the bottom. This bar is a visual indication of how much time is left until the panel transitions out. Possible values are `true` or `false`, with the default being `true`.
 
 Ex: Default interval for panels set at 10 seconds with a refresh cycle every 20 rotations

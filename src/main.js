@@ -203,7 +203,7 @@ define(['jquery'], function ($) {
             this.$el.on('transitionEnter.panels', this._reloadMaybe.bind(this));
         }
 
-        this._$currentPanel.addClass(this.transitionInClass).css('display', 'table');
+        this._$currentPanel.css('display', 'table').addClass(this.transitionInClass);
     };
 
     /**
@@ -352,11 +352,9 @@ define(['jquery'], function ($) {
      *  Method to start the panel advancement
      *
      * @private
-     * @param {Boolean} withoutTransition Whether or not this is being called with or
-     * without a transition (i.e. first load or resuming)
      * @returns {AgencyPanels} 'this' object for chaining
      **/
-    AgencyPanels.prototype._start = function (withoutTransition) {
+    AgencyPanels.prototype._start = function () {
         // In case resume is called in succession, we'll
         // need to cancel the previous interval (if there is one)
         if (this._advanceTimerId) {
@@ -366,7 +364,7 @@ define(['jquery'], function ($) {
         this._advanceTimerId = setTimeout(this.next.bind(this), this._timerIntervals[this._currentPanelIdx]);
 
         if (this.visualTimer) {
-            this._startVisualTimer(withoutTransition);
+            this._startVisualTimer(true);
         }
 
         return this;
@@ -378,7 +376,7 @@ define(['jquery'], function ($) {
      * @returns {AgencyPanels} 'this' object for chaining
      **/
     AgencyPanels.prototype.resume = function () {
-        return this._start(true);
+        return this._start();
     };
 
     /**
@@ -431,8 +429,8 @@ define(['jquery'], function ($) {
      * set to reload on.
      *
      * @private
-     * @private {Jquery Event} evt Typical event object
-     * @private {String} panelIndex The index of the panel that we're on.
+     * @param {Jquery Event} evt Typical event object
+     * @param {String} panelIndex The index of the panel that we're on.
      **/
     AgencyPanels.prototype._reloadMaybe = function (evt, panelIndex) {
         if (this._numCycles == this.refreshCycle && !panelIndex) {
