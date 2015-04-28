@@ -39,6 +39,15 @@ define(['jquery'], function ($) {
         // And go.
         this._init();
     };
+
+    /**
+     * Events
+     * @enum
+     */
+    AgencyPanels.events = {};
+    AgencyPanels.events.TRANSITION_EXIT = 'transitionExit.panels';
+    AgencyPanels.events.TRANSITION_ENTER = 'transitionEnter.panels';
+
     AgencyPanels.prototype.panelSelector = '.panel';
     AgencyPanels.prototype.panelContentSelector = '.panel-content';
 
@@ -133,7 +142,7 @@ define(['jquery'], function ($) {
         if (evt.which == 39) {
             this.next()
         }
-        
+
         // Left Arrow
         else if (evt.which == 37) {
             this.prev();
@@ -147,7 +156,7 @@ define(['jquery'], function ($) {
             else {
                 this.stop();
             }
-        }  
+        }
     };
 
     /**
@@ -168,7 +177,7 @@ define(['jquery'], function ($) {
         // Find all panels and set starting point
         this._$panels = this.$el.find(this.panelSelector);
         this._$currentPanel = this._$panels.eq(0);
-        
+
         // Auto advance?
         if (this.autoAdvance) {
             // Find and store all the timers.. or use the default interval
@@ -200,7 +209,7 @@ define(['jquery'], function ($) {
 
         // Attach an event to evaluate whether we need to reload or not
         if (this.refreshCycle) {
-            this.$el.on('transitionEnter.panels', this._reloadMaybe.bind(this));
+            this.$el.on(AgencyPanels.events.TRANSITION_ENTER, this._reloadMaybe.bind(this));
         }
 
         this._$currentPanel.css('display', 'table').addClass(this.transitionInClass);
@@ -335,7 +344,7 @@ define(['jquery'], function ($) {
 
         if (animationName == this.transitionInClass) {
             // Panel index is 0 based
-            this.$el.trigger('transitionEnter.panels', [this._currentPanelIdx]);
+            this.$el.trigger(AgencyPanels.events.TRANSITION_ENTER, [this._currentPanelIdx]);
         }
 
         if (animationName == this.transitionOutClass) {
@@ -344,7 +353,7 @@ define(['jquery'], function ($) {
             var prevPanelIdx = (this._currentPanelIdx - 1 > -1 ? this._currentPanelIdx : this._$panels.length) - 1;
 
             // Panel index is 0 based
-            this.$el.trigger('transitionExit.panels', [prevPanelIdx]);
+            this.$el.trigger(AgencyPanels.events.TRANSITION_EXIT, [prevPanelIdx]);
         }
     };
 
@@ -358,7 +367,7 @@ define(['jquery'], function ($) {
         // In case resume is called in succession, we'll
         // need to cancel the previous interval (if there is one)
         if (this._advanceTimerId) {
-           this.stop(); 
+           this.stop();
         }
 
         this._advanceTimerId = setTimeout(this.next.bind(this), this._timerIntervals[this._currentPanelIdx]);
@@ -400,7 +409,7 @@ define(['jquery'], function ($) {
     /**
      * Debounces events so that we don't get crazy amounts
      * of function calls... for example, on the resize event
-     * 
+     *
      * @private
      * @param {Function} func Function you want to execute at the end of the day
      * @param {Number} delay How long you want to wait for before you actually execute it, in miliseconds.
@@ -491,7 +500,7 @@ define(['jquery'], function ($) {
     AgencyPanels.prototype._buildVisualTimer = function () {
         this._$visualTimerEl = $('<div class="' + this.visualTimerWrapperClass + '"></div>')
         var $visualTimer =  $('<div class="' + this.visualTimerClass + '"></div>');
-                
+
         this._$visualTimerEl.css('height', 0.008 * this._getScreenDimensions().height + 'px');
         this._$visualTimerEl.append($visualTimer);
         this.$el.after(this._$visualTimerEl);
@@ -593,7 +602,7 @@ define(['jquery'], function ($) {
                     }
                 }
             }
-        } 
+        }
     };
 
     return AgencyPanels;
